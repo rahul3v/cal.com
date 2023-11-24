@@ -92,6 +92,7 @@ export function getOrgDomainConfigFromHostname({
 
 export function subdomainSuffix() {
   if (!IS_PRODUCTION && process.env.LOCAL_TESTING_DOMAIN_VERCEL) {
+    // Allow testing with a valid domain so that we can test with deployment services like Vercel and Cloudflare locally.
     return process.env.LOCAL_TESTING_DOMAIN_VERCEL;
   }
   const urlSplit = WEBAPP_URL.replace("https://", "")?.replace("http://", "").split(".");

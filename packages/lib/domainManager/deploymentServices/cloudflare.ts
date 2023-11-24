@@ -6,6 +6,9 @@ import { safeStringify } from "@calcom/lib/safeStringify";
 import logger from "../../logger";
 
 const log = logger.getSubLogger({ prefix: ["cloudflare"] });
+
+// TODO: This and other settings should really come from DB when admin allows configuring which deployment services to use for the organization
+const IS_RECORD_PROXIED = true;
 const AUTOMATIC_TTL = 1;
 
 const ERROR_CODE_CNAME_ALREADY_EXISTS = 81053;
@@ -42,6 +45,7 @@ export const addDnsRecord = async (domain: string) => {
       method: "POST",
       body: JSON.stringify({
         type: "CNAME",
+        proxied: IS_RECORD_PROXIED,
         name: domain,
         content: process.env.CLOUDFLARE_VERCEL_CNAME,
         ttl: AUTOMATIC_TTL,

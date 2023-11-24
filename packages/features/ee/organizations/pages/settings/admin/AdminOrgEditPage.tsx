@@ -17,11 +17,11 @@ const paramsSchema = z.object({ id: z.coerce.number() });
 
 const OrgEditPage = () => {
   const params = useParamsWithFallback();
-  const input = paramsSchema.safeParse(params);
+  const parsedParams = paramsSchema.safeParse(params);
 
-  if (!input.success) return <div>Invalid input</div>;
+  if (!parsedParams.success) return <div>Invalid id</div>;
 
-  return <OrgEditView orgId={input.data.id} />;
+  return <OrgEditView orgId={parsedParams.data.id} />;
 };
 
 const OrgEditView = ({ orgId }: { orgId: number }) => {
@@ -64,12 +64,12 @@ const OrgForm = ({
           id: org.id,
         }),
       ]);
-      showToast("Organization updated successfully", "success");
+      showToast(t("org_has_been_processed"), "success");
       router.replace(`/settings/admin/organizations`);
     },
     onError: (err) => {
       console.error(err.message);
-      showToast("There has been an error updating this organization.", "error");
+      showToast(t("org_error_processing"), "error");
     },
   });
 
@@ -88,7 +88,10 @@ const OrgForm = ({
     <Form form={form} className="space-y-4" handleSubmit={onSubmit}>
       <TextField label="Name" placeholder="example" required {...form.register("name")} />
       <TextField label="Slug" placeholder="example" required {...form.register("slug")} />
-      <p className="text-default mt-2 text-sm">Changing the slug would reconfigure the organization domain</p>
+      <p className="text-default mt-2 text-sm">
+        Changing the slug would delete the previous organization domain and DNS and setup new domain and DNS
+        for the organization.
+      </p>
       <TextField
         label="Domain for which invitations are auto-accepted"
         placeholder="abc.com"

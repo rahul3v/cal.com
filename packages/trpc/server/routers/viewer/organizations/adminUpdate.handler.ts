@@ -2,6 +2,7 @@ import type { Prisma } from "@prisma/client";
 
 import { renameDomain } from "@calcom/lib/domainManager/organization";
 import { getMetadataHelpers } from "@calcom/lib/getMetadataHelpers";
+import { HttpError } from "@calcom/lib/http-error";
 import { prisma } from "@calcom/prisma";
 import { teamMetadataSchema } from "@calcom/prisma/zod-utils";
 
@@ -24,7 +25,10 @@ export const adminUpdateHandler = async ({ input }: AdminUpdateOptions) => {
   });
 
   if (!existingOrg) {
-    throw new Error("Organization not found");
+    throw new HttpError({
+      message: "Organization not found",
+      statusCode: 404,
+    });
   }
 
   const { mergeMetadata } = getMetadataHelpers(teamMetadataSchema.unwrap(), existingOrg.metadata);
@@ -68,7 +72,10 @@ async function throwIfSlugConflicts({ id, slug }: { id: number; slug: string }) 
   });
 
   if (organizationsWithSameSlug.length > 1) {
-    throw new Error("There can only be one organization with a given slug");
+    throw new HttpError({
+      message: "There can only be one organization with a given slug",
+      statusCode: 400,
+    });
   }
 
   const foundOrg = organizationsWithSameSlug[0];
@@ -78,6 +85,9 @@ async function throwIfSlugConflicts({ id, slug }: { id: number; slug: string }) 
 
   // If foundOrg isn't same as the org being edited
   if (foundOrg.id !== id) {
-    throw new Error("Organization with same slug already exists");
+    throw new HttpError({
+      message: "Organization with same slug already exists",
+      statusCode: 400,
+    });
   }
 }

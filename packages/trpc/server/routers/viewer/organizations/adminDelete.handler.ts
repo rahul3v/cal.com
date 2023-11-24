@@ -34,14 +34,14 @@ export const adminDeleteHandler = async ({ input }: AdminDeleteOption) => {
   if (!foundOrg)
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "This team isnt a org or doesnt exist",
+      message: "Organization not found",
     });
 
   if (foundOrg.slug) {
     await deleteDomain(foundOrg.slug);
   }
 
-  await renameUsers(foundOrg.members.map((member) => member.user));
+  await renameUsersToAvoidUsernameConflicts(foundOrg.members.map((member) => member.user));
   await prisma.team.delete({
     where: {
       id: input.orgId,
@@ -56,7 +56,7 @@ export const adminDeleteHandler = async ({ input }: AdminDeleteOption) => {
 
 export default adminDeleteHandler;
 
-async function renameUsers(users: { id: number; username: string | null }[]) {
+async function renameUsersToAvoidUsernameConflicts(users: { id: number; username: string | null }[]) {
   for (const user of users) {
     await prisma.user.update({
       where: {

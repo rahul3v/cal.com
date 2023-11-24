@@ -8,24 +8,40 @@ import {
 
 export const deleteDomain = async (slug: string) => {
   const domain = `${slug}.${subdomainSuffix()}`;
+  // We must have some domain deleted
+  let isDomainDeleted = false;
 
+  // TODO: Ideally we should start storing the DNS and domain entries in DB for each organization
+  // A separate DNS record is optional but if we have it, we must have it deleted
+  let isDnsRecordDeleted = true;
   if (process.env.VERCEL_URL) {
-    await deleteVercelDomain(domain);
+    isDomainDeleted = await deleteVercelDomain(domain);
   }
 
   if (process.env.CLOUDFLARE_DNS) {
-    await deleteDnsRecord(domain);
+    isDnsRecordDeleted = await deleteDnsRecord(domain);
   }
+  return isDomainDeleted && isDnsRecordDeleted;
 };
 
 export const createDomain = async (slug: string) => {
   const domain = `${slug}.${subdomainSuffix()}`;
+
+  // We must have some domain configured
+  let domainConfigured = false;
+
+  // A separate DNS record is optional but if we have it, we must have it configured
+  let dnsConfigured = true;
+
   if (process.env.VERCEL_URL) {
-    await createVercelDomain(domain);
+    domainConfigured = await createVercelDomain(domain);
   }
+
   if (process.env.CLOUDFLARE_DNS) {
-    await addDnsRecord(domain);
+    dnsConfigured = await addDnsRecord(domain);
   }
+
+  return domainConfigured && dnsConfigured;
 };
 
 export const renameDomain = async (oldSlug: string | null, newSlug: string) => {

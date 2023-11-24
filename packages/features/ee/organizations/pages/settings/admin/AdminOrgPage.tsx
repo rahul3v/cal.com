@@ -14,7 +14,7 @@ import {
   ConfirmationDialogContent,
   Dialog,
 } from "@calcom/ui";
-import { X, Check, CheckCheck, Trash, Edit, BookOpenCheck } from "@calcom/ui/components/icon";
+import { Check, CheckCheck, Trash, Edit, BookOpenCheck } from "@calcom/ui/components/icon";
 
 import { getLayout } from "../../../../../settings/layouts/SettingsLayout";
 import { subdomainSuffix } from "../../../../organizations/lib/orgDomains";
@@ -135,26 +135,14 @@ function AdminOrgTable() {
                       ...(!org.metadata?.isOrganizationVerified
                         ? [
                             {
-                              id: "accept",
-                              label: t("accept"),
+                              id: "verify",
+                              label: t("verify"),
                               onClick: () => {
                                 verifyMutation.mutate({
                                   orgId: org.id,
-                                  status: "ACCEPT",
                                 });
                               },
                               icon: Check,
-                            },
-                            {
-                              id: "reject",
-                              label: t("reject"),
-                              onClick: () => {
-                                verifyMutation.mutate({
-                                  orgId: org.id,
-                                  status: "DENY",
-                                });
-                              },
-                              icon: X,
                             },
                           ]
                         : []),
@@ -271,7 +259,7 @@ const DeleteOrgDialog = ({
               Users that were part of the organization will not be deleted and their event-types will also
               remain intact.
             </li>
-            <li>Any domain associated to it, will not be deleted</li>
+            <li>Usernames would be changed to allow them to exist outside the organization</li>
           </ul>
         </Trans>
       </ConfirmationDialogContent>

@@ -69,12 +69,9 @@ export const createHandler = async ({ input, ctx }: CreateOptions) => {
   let isOrganizationConfigured = false;
 
   if (check === false) {
-    // eslint-disable-next-line turbo/no-undeclared-env-vars
-    if (process.env.VERCEL) {
-      // We only want to proceed to register the subdomain for the org in Vercel
-      // within a Vercel context
-      isOrganizationConfigured = await createDomain(slug);
-    } else {
+    isOrganizationConfigured = await createDomain(slug);
+
+    if (!isOrganizationConfigured) {
       // Otherwise, we proceed to send an administrative email to admins regarding
       // the need to configure DNS registry to support the newly created org
       const instanceAdmins = await prisma.user.findMany({
